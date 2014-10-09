@@ -1,5 +1,9 @@
 package main;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Scanner;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -7,13 +11,16 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import dataobjects.Category;
+
 public class Main 
 {
+	private static ArrayList<Category> categories = new ArrayList<Category>();
 
 	public static void main(String[] args) 
 	{
 		System.out.println();
-		System.out.println("**  **");
+		System.out.println("** Welcome **");
 		System.out.println();
 		
 		Document seSites = getXMLDocument("https://stackexchange.com/feeds/sites");
@@ -24,15 +31,88 @@ public class Main
 		{
 			NodeList siteDetails = sites.item(i).getChildNodes();
 			
+			String catName = null;
+			String catURL = null;
+			
 			for (int j = 0; j < siteDetails.getLength(); j++) 
 			{
 				Node siteDetail = siteDetails.item(j);
 				
-				if (siteDetail.getNodeName().equals("id") || siteDetail.getNodeName().equals("title"))
-				{
-					System.out.println(siteDetail.getNodeName()+":"+siteDetail.getTextContent().trim());
-				}
+				if (siteDetail.getNodeName().equals("id")) catURL = siteDetail.getTextContent().trim();
+				if (siteDetail.getNodeName().equals("title")) catName = siteDetail.getTextContent().trim();
 			}
+			
+			if (catName != null && catURL != null)
+			{
+				categories.add(new Category(catName, catURL));
+			}
+		}
+		
+		// Setup input
+		Scanner keyboard = new Scanner(System.in);
+		
+		// Start of main loop
+		while(true)
+		{
+			Collections.shuffle(categories);
+			
+			System.out.println("Categories for this turn: ");
+			System.out.println();
+			
+			for (int i = 0; i < 3; i++) 
+			{
+				System.out.println((i+1)+" - "+categories.get(i).getName());
+			}
+			
+			System.out.println();
+			
+			int categoryChoice = 0;
+			
+			while (categoryChoice<1 || categoryChoice>3)
+			{
+				System.out.print("Choose a category (1-3): ");
+				
+				try
+				{
+					categoryChoice = keyboard.nextInt();
+				}
+				catch (Exception e)
+				{
+					System.out.println("Error with category choice - "+e);
+					keyboard.next();
+				}
+				
+				Category categoryInPlay = categories.get(categoryChoice-1);
+				
+				Document seQuestions = getXMLDocument(categoryInPlay.getFeedURL());
+				
+				NodeList questionUrls = seQuestions.getElementsByTagName("id");
+				
+				System.out.println();
+				
+				for (int i = 0; i < questionUrls.getLength(); i++) 
+				{
+					String[] questionUrlParts = questionUrls.item(i).getTextContent().trim().split("/");
+					
+					int questionId = 0;
+					
+					try
+					{
+						questionId = Integer.parseInt(questionUrlParts[questionUrlParts.length-1]);
+					}
+					catch (NumberFormatException e)
+					{
+						continue;
+					}
+					
+					System.out.println(questionId);
+					
+				}
+				
+				System.out.println();
+								
+			}
+			
 		}
 	}
 	
