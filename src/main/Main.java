@@ -12,6 +12,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
 import dataobjects.Category;
+import dataobjects.Question;
 
 public class Main 
 {
@@ -81,38 +82,20 @@ public class Main
 					System.out.println("Error with category choice - "+e);
 					keyboard.next();
 				}
-				
-				Category categoryInPlay = categories.get(categoryChoice-1);
-				
-				Document seQuestions = getXMLDocument(categoryInPlay.getFeedURL());
-				
-				NodeList questionUrls = seQuestions.getElementsByTagName("id");
-				
-				System.out.println();
-				
-				for (int i = 0; i < questionUrls.getLength(); i++) 
-				{
-					String[] questionUrlParts = questionUrls.item(i).getTextContent().trim().split("/");
-					
-					int questionId = 0;
-					
-					try
-					{
-						questionId = Integer.parseInt(questionUrlParts[questionUrlParts.length-1]);
-					}
-					catch (NumberFormatException e)
-					{
-						continue;
-					}
-					
-					System.out.println(questionId);
-					
-				}
-				
-				System.out.println();
-								
 			}
 			
+			System.out.println();
+			
+			Category categoryInPlay = categories.get(categoryChoice-1);
+			
+			ArrayList<Question> questions = categoryInPlay.getQuestions();
+			
+			for (Question question : questions) 
+			{
+				System.out.println(question.getFeedURL());
+			}
+			
+			System.out.println();
 		}
 	}
 	
