@@ -36,11 +36,21 @@ public class Category
 	
 	public ArrayList<Question> getQuestions()
 	{
-		Document seQuestions = Main.getXMLDocument(getFeedURL());
-		
-		NodeList questionUrls = seQuestions.getElementsByTagName("id");
+		Document seQuestions = null;
 		
 		ArrayList<Question> questions = new ArrayList<Question>();
+		
+		try
+		{
+			seQuestions = Main.getXMLDocument(getFeedURL());
+		}
+		catch (Exception e)
+		{
+			System.out.println("Error retrieving questions for this category. "+e);
+			return questions;
+		}
+			
+		NodeList questionUrls = seQuestions.getElementsByTagName("id");
 		
 		for (int i = 0; i < questionUrls.getLength(); i++) 
 		{
